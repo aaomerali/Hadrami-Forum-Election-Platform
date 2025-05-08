@@ -8,13 +8,22 @@ import UsersTab from "./pages/UsersTab";
 import CandidatesTab from "./pages/CandidatesTab";
 import ControlTab from "./pages/ControlTab";
 import ResultsTab from "./pages/ResultsTab";
+import ProtectedRoute from "./components/ProtectedRoute";
+
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<AdminLogin />} />
-        <Route path="/dashboard" element={<Dashboard />}>
+        <Route
+          path="/dashboard/*"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        >
           <Route path="users" element={<UsersTab />} />
           <Route path="candidates" element={<CandidatesTab />} />
           <Route path="control" element={<ControlTab />} />

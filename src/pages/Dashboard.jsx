@@ -1,6 +1,8 @@
 import { Link, useLocation, Outlet, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
+import { auth } from "../firebase/firebase";
+import { signOut } from "firebase/auth";
 import logo from '../assets/logo.png'
 
 
@@ -10,19 +12,30 @@ export default function Dashboard() {
   const currentPath = location.pathname;
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  const navItem = (to, label) => (
-    <Link
-      to={to}
-      onClick={() => setIsSidebarOpen(false)}
-      className={`px-4 py-2 rounded-md transition-all text-lg font-medium text-right ${
-        currentPath === to
-          ? "bg-[#993433] text-white"
-          : "text-gray-700 hover:bg-gray-200"
-      }`}
-    >
-      {label}
-    </Link>
-  );
+  const navItem = (to, label, external = false) =>
+    external ? (
+      <a
+        href={to}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="px-4 py-2 rounded-md transition-all text-lg font-medium text-right text-gray-700 hover:bg-gray-200"
+      >
+        {label}
+      </a>
+    ) : (
+      <Link
+        to={to}
+        onClick={() => setIsSidebarOpen(false)}
+        className={`px-4 py-2 rounded-md transition-all text-lg font-medium text-right ${
+          currentPath === to
+            ? "bg-[#993433] text-white"
+            : "text-gray-700 hover:bg-gray-200"
+        }`}
+      >
+        {label}
+      </Link>
+    );
+  
 
   return (
     <div className="min-h-screen flex flex-row-reverse bg-gray-50">
@@ -49,14 +62,19 @@ export default function Dashboard() {
           {navItem("/dashboard/candidates", "المترشحون")}
           {navItem("/dashboard/control", "التحكم بالتصويت")}
           {navItem("/dashboard/results", "عرض النتائج")}
+          {navItem("/voter-login", "دخول المصوّت" , true)}
         </nav>
 
         <button
-          onClick={() => navigate("/")}
+          onClick={async () => {
+            await signOut(auth);
+            navigate("/");
+          }}
           className="mt-10 w-full bg-neutral-600 text-white py-2 rounded cursor-pointer hover:bg-neutral-500 transition-all"
         >
           تسجيل الخروج
         </button>
+
       </aside>
 
       {/* Main content area */}
