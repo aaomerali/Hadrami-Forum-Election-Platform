@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { HiPencil, HiTrash } from "react-icons/hi"; // أيقونات التعديل والحذف
+import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from "firebase/firestore"; 
+import { db } from "../firebase/firebase"; // تأكد من المسار الصحيح
 
 
 export default function UsersTab() {
@@ -13,28 +15,42 @@ export default function UsersTab() {
   });
   const [editIndex, setEditIndex] = useState(null);
 
-  const handleSubmit = (e) => {
+  // جلب المستخدمين من Firestore
+  const fetchUsers = async () => {
+    const querySnapshot = await getDocs(collection(db, "users"));
+    const usersList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    setUsers(usersList);
+  };
+
+  // استدعاء جلب المستخدمين عند تحميل الصفحة
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  // إرسال النموذج
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (editIndex !== null) {
       // تعديل مستخدم
-      const updatedUsers = [...users];
-      updatedUsers[editIndex] = { ...formData, hasVoted: users[editIndex].hasVoted };
-      setUsers(updatedUsers);
+      const userDoc = doc(db, "users", users[editIndex].id);
+      await updateDoc(userDoc, { ...formData });
       setEditIndex(null);
     } else {
-      // إضافة مستخدم
+      // إضافة مستخدم جديد
       const newUser = {
         ...formData,
         hasVoted: false,
       };
-      setUsers((prev) => [...prev, newUser]);
+      await addDoc(collection(db, "users"), newUser);
     }
 
     setFormData({ name: "", email: "", city: "", voteId: "" });
     setShowForm(false);
+    fetchUsers(); // تحديث قائمة المستخدمين بعد إضافة أو تعديل
   };
 
+  // تعديل مستخدم
   const handleEdit = (index) => {
     const user = users[index];
     setFormData({
@@ -47,9 +63,12 @@ export default function UsersTab() {
     setShowForm(true);
   };
 
-  const handleDelete = (index) => {
-    const filtered = users.filter((_, i) => i !== index);
-    setUsers(filtered);
+  // حذف مستخدم
+  const handleDelete = async (index) => {
+    const user = users[index];
+    const userDoc = doc(db, "users", user.id);
+    await deleteDoc(userDoc);
+    fetchUsers(); // تحديث قائمة المستخدمين بعد الحذف
   };
 
   return (
@@ -143,7 +162,7 @@ export default function UsersTab() {
               </tr>
             ) : (
               users.map((user, index) => (
-                <tr key={index}>
+                <tr key={user.id}>
                   <td className="border p-2">{user.name}</td>
                   <td className="border p-2">{user.email}</td>
                   <td className="border p-2">{user.city}</td>

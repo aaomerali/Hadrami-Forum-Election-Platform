@@ -1,5 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { HiPencil, HiTrash } from "react-icons/hi";
+import { db } from "../firebase/firebase";
+import {
+  collection,
+  addDoc,
+  getDocs,
+  deleteDoc,
+  doc,
+  onSnapshot,
+} from "firebase/firestore";
 
 export default function CandidatesTab() {
   const [candidates, setCandidates] = useState([]);
@@ -10,30 +19,61 @@ export default function CandidatesTab() {
     position: "",
   });
 
+  const candidatesCollection = collection(db, "candidates");
+
+  useEffect(() => {
+    const unsubscribe = onSnapshot(candidatesCollection, (snapshot) => {
+      const fetched = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+        votes: 0,
+        voters: [],
+      }));
+      setCandidates(fetched);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     if (!formData.name || !formData.city || !formData.position) return;
 
-    setCandidates((prev) => [...prev, { ...formData, votes: 0, voters: [] }]);
-    setFormData({ name: "", city: "", position: "" });
-    setShowForm(false);
+    try {
+      await addDoc(candidatesCollection, {
+        name: formData.name,
+        city: formData.city,
+        position: formData.position,
+      });
+      setFormData({ name: "", city: "", position: "" });
+      setShowForm(false);
+    } catch (error) {
+      console.error("خطأ في الإضافة:", error);
+    }
   };
 
-  const handleDelete = (index) => {
-    setCandidates((prev) => prev.filter((_, i) => i !== index));
+  const handleDelete = async (id) => {
+    try {
+      await deleteDoc(doc(db, "candidates", id));
+    } catch (error) {
+      console.error("خطأ في الحذف:", error);
+    }
   };
 
-  const handleEdit = (index) => {
-    const candidate = candidates[index];
+  const handleEdit = async (id) => {
+    const candidate = candidates.find((c) => c.id === id);
+    if (!candidate) return;
+
     setFormData({
       name: candidate.name,
       city: candidate.city,
       position: candidate.position,
     });
-    setCandidates((prev) => prev.filter((_, i) => i !== index));
+
+    await handleDelete(id); // حذف المرشح القديم وإعادة إضافته
     setShowForm(true);
   };
 
@@ -102,23 +142,23 @@ export default function CandidatesTab() {
                 </td>
               </tr>
             ) : (
-              candidates.map((c, index) => (
-                <tr key={index}>
+              candidates.map((c) => (
+                <tr key={c.id}>
                   <td className="border p-2">{c.name}</td>
                   <td className="border p-2">{c.city}</td>
                   <td className="border p-2">{c.position}</td>
-                  <td className="border p-2">{c.votes}</td>
+                  <td className="border p-2">{c.votes || 0}</td>
                   <td className="border p-2 text-center">
                     <div className="flex justify-center gap-2">
                       <button
-                        onClick={() => handleEdit(index)}
+                        onClick={() => handleEdit(c.id)}
                         className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-full"
                         title="تعديل"
                       >
                         <HiPencil size={18} />
                       </button>
                       <button
-                        onClick={() => handleDelete(index)}
+                        onClick={() => handleDelete(c.id)}
                         className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-full"
                         title="حذف"
                       >
