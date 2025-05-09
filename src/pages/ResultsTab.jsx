@@ -1,44 +1,31 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../firebase/firebase"; // تأكد من مسار الملف الصحيح
 
 export default function ResultsTab() {
-  const [candidates] = useState([
-    {
-      name: "أحمد يوسف",
-      position: "الهيئة التنفيذية",
-      votes: 120,
-    },
-    {
-      name: "أحمد نبيل",
-      position: "الهيئة التنفيذية",
-      votes: 98,
-    },
-    {
-      name: "محمد سعيد",
-      position: "الهيئة التنفيذية",
-      votes: 105,
-    },
-    {
-      name: "أنور فؤاد",
-      position: "الهيئة التنفيذية",
-      votes: 110,
-    },
-    {
-      name: "جمال سالم",
-      position: "هيئة الرقابة والتفتيش",
-      votes: 87,
-    },
-    {
-      name: "مهند خالد",
-      position: "هيئة الرقابة والتفتيش",
-      votes: 92,
-    },
-  ]);
+  const [candidates, setCandidates] = useState([]);
+
+  useEffect(() => {
+    const fetchCandidates = async () => {
+      try {
+        const snapshot = await getDocs(collection(db, "candidates"));
+        const fetchedCandidates = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setCandidates(fetchedCandidates);
+      } catch (error) {
+        console.error("حدث خطأ أثناء جلب المترشحين:", error);
+      }
+    };
+
+    fetchCandidates();
+  }, []);
 
   const handleViewVoters = (name) => {
     console.log(`عرض المصوتين لـ ${name}`);
   };
 
-  // تقسيم المترشحين حسب المنصب
   const executiveCandidates = candidates.filter(
     (c) => c.position === "الهيئة التنفيذية"
   );
@@ -57,15 +44,15 @@ export default function ResultsTab() {
         الهيئة التنفيذية
       </h2>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mb-10">
-        {executiveCandidates.map((candidate, index) => (
+        {executiveCandidates.map((candidate) => (
           <div
-            key={index}
+            key={candidate.id}
             className="bg-white shadow rounded p-4 border flex flex-col justify-between"
           >
             <div className="space-y-2 mb-4">
               <h3 className="text-lg font-bold text-[#993433]">{candidate.name}</h3>
               <p className="text-gray-700">المنصب: {candidate.position}</p>
-              <p className="text-gray-700">عدد الأصوات: {candidate.votes}</p>
+              <p className="text-gray-700">عدد الأصوات: {candidate.votes ?? 0}</p>
             </div>
             <button
               onClick={() => handleViewVoters(candidate.name)}
@@ -82,15 +69,15 @@ export default function ResultsTab() {
         هيئة الرقابة والتفتيش
       </h2>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {oversightCandidates.map((candidate, index) => (
+        {oversightCandidates.map((candidate) => (
           <div
-            key={index}
+            key={candidate.id}
             className="bg-white shadow rounded p-4 border flex flex-col justify-between"
           >
             <div className="space-y-2 mb-4">
               <h3 className="text-lg font-bold text-[#993433]">{candidate.name}</h3>
               <p className="text-gray-700">المنصب: {candidate.position}</p>
-              <p className="text-gray-700">عدد الأصوات: {candidate.votes}</p>
+              <p className="text-gray-700">عدد الأصوات: {candidate.votes ?? 0}</p>
             </div>
             <button
               onClick={() => handleViewVoters(candidate.name)}
