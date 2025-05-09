@@ -1,27 +1,33 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom"; // ← تأكد من استخدام react-router-dom
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../firebase/firebase"; // ← تأكد من المسار الصحيح
 import logo from '../assets/logo.png';
 
 export default function VotePage() {
-  const navigate = useNavigate(); // ← لاستخدام التنقل للصفحات
+  const navigate = useNavigate();
 
-  const candidates = [
-    { name: "أحمد يوسف", position: "الهيئة التنفيذية", votes: 120 },
-    { name: "أحمد نبيل", position: "الهيئة التنفيذية", votes: 98 },
-    { name: "محمد سعيد", position: "الهيئة التنفيذية", votes: 105 },
-    { name: "أنور فؤاد", position: "الهيئة التنفيذية", votes: 110 },
-    { name: "جمال سالم", position: "هيئة الرقابة والتفتيش", votes: 87 },
-    { name: "مهند خالد", position: "هيئة الرقابة والتفتيش", votes: 92 },
-  ];
-
+  const [candidates, setCandidates] = useState([]);
   const [selectedExecutives, setSelectedExecutives] = useState([]);
   const [selectedSupervisor, setSelectedSupervisor] = useState(null);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+
+  useEffect(() => {
+    const fetchCandidates = async () => {
+      try {
+        const snapshot = await getDocs(collection(db, "candidates"));
+        const fetched = snapshot.docs.map(doc => doc.data());
+        setCandidates(fetched);
+      } catch (err) {
+        console.error("حدث خطأ أثناء جلب المرشحين:", err);
+      }
+    };
+
+    fetchCandidates();
+  }, []);
 
   const handleSelect = (candidate) => {
     setError("");
-    setSuccess("");
 
     if (candidate.position === "الهيئة التنفيذية") {
       const isSelected = selectedExecutives.find((c) => c.name === candidate.name);
@@ -35,7 +41,7 @@ export default function VotePage() {
         }
       }
     } else if (candidate.position === "هيئة الرقابة والتفتيش") {
-      if (selectedSupervisor && selectedSupervisor.name === candidate.name) {
+      if (selectedSupervisor?.name === candidate.name) {
         setSelectedSupervisor(null);
       } else {
         setSelectedSupervisor(candidate);
@@ -49,19 +55,15 @@ export default function VotePage() {
       return;
     }
 
-    setError("");
-    navigate("/vote-success");
-    
-
     console.log("تم التصويت لـ:", {
       "الهيئة التنفيذية": selectedExecutives,
       "هيئة الرقابة والتفتيش": selectedSupervisor,
     });
+
+    navigate("/vote-success");
   };
 
-  const handleLogout = () => {
-    navigate("/voter-login"); // ← غيّر هذا المسار إذا كانت صفحة تسجيل الدخول مختلفة
-  };
+  const handleLogout = () => navigate("/voter-login");
 
   const renderCandidate = (candidate, isSelected) => (
     <div
@@ -81,31 +83,19 @@ export default function VotePage() {
 
   return (
     <div className="p-6 max-w-5xl mx-auto mt-8" dir="rtl">
-      {/* شريط علوي يحتوي على الشعار وزر تسجيل الخروج */}
       <div className="flex justify-between items-center mb-10">
-        <img
-          src={logo}
-          alt="شعار المنصة"
-          className="w-40 h-auto"
-        />
-        <button
-          onClick={handleLogout}
-          className="bg-gray-200 hover:bg-gray-300 text-sm text-gray-800 px-4 py-2 rounded"
-        >
+        <img src={logo} alt="شعار المنصة" className="w-40 h-auto" />
+        <button onClick={handleLogout} className="bg-gray-200 hover:bg-gray-300 text-sm text-gray-800 px-4 py-2 rounded">
           تسجيل الخروج
         </button>
       </div>
 
-      <h1 className="text-2xl font-bold text-center mb-4 text-[#993433]">
-        صفحة التصويت
-      </h1>
-
+      <h1 className="text-2xl font-bold text-center mb-4 text-[#993433]">صفحة التصويت</h1>
       <p className="text-center text-lg text-gray-600 mb-10">
         اختر <strong>3</strong> مرشحين من <strong>الهيئة التنفيذية</strong> ومرشحاً <strong>واحداً</strong> من <strong>هيئة الرقابة والتفتيش</strong>
       </p>
 
       {error && <div className="text-red-600 mb-4 text-center">{error}</div>}
-      {success && <div className="text-green-600 mb-4 text-center">{success}</div>}
 
       <section className="mb-8">
         <h2 className="text-xl font-semibold mb-4">الهيئة التنفيذية</h2>
