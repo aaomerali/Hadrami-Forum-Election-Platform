@@ -74,7 +74,7 @@ export default function UsersTab() {
   return (
     <div className="text-right mt-22 p-4 md:p-10">
       <div className="flex justify-between flex-row-reverse items-center mb-4">
-        <h2 className="text-xl font-semibold">قائمة المستخدمين</h2>
+        <h2 className="text-xl font-semibold">قائمة الطلاب</h2>
         <button
           onClick={() => {
             setShowForm(!showForm);
@@ -83,7 +83,7 @@ export default function UsersTab() {
           }}
           className="bg-[#993433] text-white px-4 py-2 rounded hover:bg-[#993533da] cursor-pointer"
         >
-          {showForm ? "إلغاء" : "إضافة مستخدم"}
+          {showForm ? "إلغاء" : "إضافة طالب"}
         </button>
       </div>
 
@@ -136,7 +136,7 @@ export default function UsersTab() {
             type="submit"
             className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
           >
-            {editIndex !== null ? "تحديث" : "حفظ المستخدم"}
+            {editIndex !== null ? "تحديث" : "حفظ الطالب"}
           </button>
         </form>
       )}

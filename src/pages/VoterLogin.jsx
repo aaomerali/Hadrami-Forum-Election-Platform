@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import logo from '../assets/logo.png'
-
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { db } from "../firebase/firebase"; 
+import logo from '../assets/logo.png';
 
 export default function VoterLogin() {
   const [email, setEmail] = useState("");
@@ -9,7 +10,7 @@ export default function VoterLogin() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
 
@@ -18,36 +19,50 @@ export default function VoterLogin() {
       return;
     }
 
-    // تخزين مؤقت
-    localStorage.setItem("voterEmail", email);
-    localStorage.setItem("voteCode", voteCode);
+    try {
+      const q = query(collection(db, "users"), where("email", "==", email));
+      const querySnapshot = await getDocs(q);
 
-    navigate("/vote");
+      if (querySnapshot.empty) {
+        setError("لا يوجد مستخدم بهذا البريد الإلكتروني.");
+        return;
+      }
+
+      const userData = querySnapshot.docs[0].data();
+
+      if (userData.voteId !== voteCode) {
+        setError("رقم التصويت غير صحيح.");
+        return;
+      }
+
+      // (اختياري) إذا أردت تخزينه أيضًا في localStorage
+      localStorage.setItem("voterEmail", email);
+      localStorage.setItem("voteCode", voteCode);
+
+      // ✅ إعادة التوجيه مع تضمين voteId في الرابط
+      navigate(`/vote/${voteCode}`);
+
+    } catch (err) {
+      console.error("خطأ أثناء التحقق من المستخدم:", err);
+      setError("حدث خطأ أثناء تسجيل الدخول. حاول مرة أخرى لاحقًا.");
+    }
   };
+
+  
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100" dir="rtl">
       <div className="bg-white p-8 rounded shadow-md w-full max-w-md">
-        
-        {/* شعار المنصة */}
         <div className="flex justify-center mb-4">
-          {/* قم بإضافة src للشعار هنا لاحقًا */}
-          <img
-            src={logo} // قم بتعديل المسار حسب موقع الشعار الفعلي
-            alt="شعار المنصة"
-            className="mx-auto h-20 w-45 object-contain"
-          />
+          <img src={logo} alt="شعار المنصة" className="mx-auto h-20 w-45 object-contain" />
         </div>
 
-        {/* عبارة ترحيب */}
         <h1 className="text-[22px] font-bold mb-4 text-center text-[#993433]">
-        مرحبًا بك ..<br />في المنصة الإلكترونية للانتخابات
+          مرحبًا بك ..<br />في المنصة الإلكترونية للانتخابات
         </h1>
         <p className="text-lg font-medium text-center text-gray-700 mb-6">
-            قم بإدخال بريدك الإلكتروني ورقم التصويت الخاص بك لتتمكن من التصويت
+          قم بإدخال بريدك الإلكتروني ورقم التصويت الخاص بك لتتمكن من التصويت
         </p>
-
-        
 
         {error && <p className="text-red-500 text-sm mb-4 text-center">{error}</p>}
 

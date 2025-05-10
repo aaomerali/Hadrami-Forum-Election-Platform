@@ -5,7 +5,9 @@ export default function VoteSuccess() {
   const navigate = useNavigate();
 
   const handleReturn = () => {
-    navigate("/voter-login"); // ← غيّر هذا حسب مسار صفحة البداية أو تسجيل الدخول
+    localStorage.removeItem("voterEmail");
+    localStorage.removeItem("voteCode");
+    navigate("/voter-login");
   };
 
   return (

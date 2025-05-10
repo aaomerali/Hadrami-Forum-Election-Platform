@@ -9,6 +9,8 @@ import CandidatesTab from "./pages/CandidatesTab";
 import ControlTab from "./pages/ControlTab";
 import ResultsTab from "./pages/ResultsTab";
 import ProtectedRoute from "./components/ProtectedRoute";
+import VoteClosed from "./pages/VoteClosed"; // حسب مسار الحفظ
+
 
 
 function App() {
@@ -30,8 +32,9 @@ function App() {
           <Route path="results" element={<ResultsTab />} />
         </Route>
         <Route path="/voter-login" element={<VoterLogin />} />
-        <Route path="/vote" element={<VotePage />} />
+        <Route path="/vote/:voteId" element={<VotePage />} />
         <Route path="/vote-success" element={<VoteSuccess />} />
+        <Route path="/vote-closed" element={<VoteClosed />} />
       </Routes>
     </BrowserRouter>
   );

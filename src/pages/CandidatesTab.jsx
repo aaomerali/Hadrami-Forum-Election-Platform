@@ -9,6 +9,8 @@ import {
   doc,
   onSnapshot,
 } from "firebase/firestore";
+import { v4 as uuidv4 } from "uuid";
+
 
 export default function CandidatesTab() {
   const [candidates, setCandidates] = useState([]);
@@ -40,20 +42,26 @@ export default function CandidatesTab() {
   };
 
   const handleAdd = async () => {
-    if (!formData.name || !formData.city || !formData.position) return;
+  if (!formData.name || !formData.city || !formData.position) return;
 
-    try {
-      await addDoc(candidatesCollection, {
-        name: formData.name,
-        city: formData.city,
-        position: formData.position,
-      });
-      setFormData({ name: "", city: "", position: "" });
-      setShowForm(false);
-    } catch (error) {
-      console.error("خطأ في الإضافة:", error);
-    }
-  };
+  const candidateId = uuidv4(); // ← توليد معرف فريد
+
+  try {
+    await addDoc(candidatesCollection, {
+      candidateId,
+      name: formData.name,
+      city: formData.city,
+      position: formData.position,
+    });
+
+    setFormData({ name: "", city: "", position: "" });
+    setShowForm(false);
+  } catch (error) {
+    console.error("خطأ في الإضافة:", error);
+  }
+};
+
+
 
   const handleDelete = async (id) => {
     try {
@@ -90,38 +98,42 @@ export default function CandidatesTab() {
       </div>
 
       {showForm && (
-        <div className="bg-white p-4 rounded shadow border space-y-4">
-          <div className="grid gap-4 md:grid-cols-3">
-            <input
-              name="name"
-              placeholder="الاسم"
-              value={formData.name}
-              onChange={handleChange}
-              className="p-2 border rounded"
-            />
-            <input
-              name="city"
-              placeholder="المدينة"
-              value={formData.city}
-              onChange={handleChange}
-              className="p-2 border rounded"
-            />
-            <input
-              name="position"
-              placeholder="المنصب"
-              value={formData.position}
-              onChange={handleChange}
-              className="p-2 border rounded"
-            />
-          </div>
-          <button
-            onClick={handleAdd}
-            className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded"
-          >
-            حفظ
-          </button>
-        </div>
-      )}
+  <div className="bg-white p-4 rounded shadow border space-y-4">
+    <div className="grid gap-4 md:grid-cols-3">
+      <input
+        name="name"
+        placeholder="الاسم"
+        value={formData.name}
+        onChange={handleChange}
+        className="p-2 border rounded"
+      />
+      <input
+        name="city"
+        placeholder="المدينة"
+        value={formData.city}
+        onChange={handleChange}
+        className="p-2 border rounded"
+      />
+      <select
+        name="position"
+        value={formData.position}
+        onChange={handleChange}
+        className="p-2 border rounded"
+      >
+        <option value="">اختر المنصب</option>
+        <option value="الهيئة التنفيذية">الهيئة التنفيذية</option>
+        <option value="هيئة الرقابة والتفتيش">هيئة الرقابة والتفتيش</option>
+      </select>
+    </div>
+    <button
+      onClick={handleAdd}
+      className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded"
+    >
+      حفظ
+    </button>
+  </div>
+)}
+
 
       <div className="overflow-x-auto">
         <table className="w-full bg-white border shadow text-sm" dir="rtl">
