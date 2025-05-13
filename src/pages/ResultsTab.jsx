@@ -104,7 +104,7 @@ export default function ResultsTab() {
             {voters.length > 0 ? (
               <ul className="list-disc list-inside space-y-1 text-gray-800 max-h-60 overflow-y-auto">
                 {voters.map((voter, idx) => (
-                  <li key={idx}>{voter.name} ({voter.email})</li>
+                  <li key={idx}>{voter.voteId}</li>
                 ))}
               </ul>
             ) : (
