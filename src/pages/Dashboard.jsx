@@ -65,7 +65,7 @@ export default function Dashboard() {
           {navItem("/dashboard/candidates", "المترشحون")}
           {navItem("/dashboard/control", "التحكم بالتصويت")}
           {navItem("/dashboard/results", "عرض النتائج")}
-          {navItem("/voter-login", "دخول المصوّت" , true)}
+          {navItem("https://voting-plaform-voters.vercel.app/", "دخول المصوّت" , true)}
         </nav>
 
         <button
