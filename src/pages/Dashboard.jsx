@@ -52,11 +52,14 @@ export default function Dashboard() {
           </button>
         </div>
 
+        <Link to={'/dashboard'}>
         <img
             src={logo} // قم بتعديل المسار حسب موقع الشعار الفعلي
             alt="شعار المنصة"
             className="mx-auto h-20 w-35 object-contain mb-10"
           />
+        </Link>
+
         <nav className="flex flex-col gap-2">
           {navItem("/dashboard/users", "الطلاب")}
           {navItem("/dashboard/candidates", "المترشحون")}

@@ -8,6 +8,7 @@ import UsersTab from "./pages/UsersTab";
 import CandidatesTab from "./pages/CandidatesTab";
 import ControlTab from "./pages/ControlTab";
 import ResultsTab from "./pages/ResultsTab";
+import DashboardHome from "./pages/DashboardHome";
 import ProtectedRoute from "./components/ProtectedRoute";
 import VoteClosed from "./pages/VoteClosed"; // حسب مسار الحفظ
 
@@ -26,6 +27,7 @@ function App() {
             </ProtectedRoute>
           }
         >
+          <Route index element={<DashboardHome />} />
           <Route path="users" element={<UsersTab />} />
           <Route path="candidates" element={<CandidatesTab />} />
           <Route path="control" element={<ControlTab />} />
