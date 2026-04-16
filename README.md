@@ -1,12 +1,15 @@
-# React + Vite
+# E-Voting Platform
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**The E-Voting Platform** is a streamlined web application designed to digitize and manage the electoral process for student organizations. Developed specifically for the Hadhrami Students Forum in Turkey, the platform facilitates secure, online voting for the forum's presidency. It provides a dual-interface system: a comprehensive dashboard for the Election Preparatory Committee and a user-friendly voting portal for students.
 
-Currently, two official plugins are available:
+![Image Alt](https://github.com/aaomerali/my_portfolio/blob/main/src/assets/e-vote%20platform/1.jpg)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Key Features
 
-## Expanding the ESLint configuration
+- **Admin Dashboard:** Full management of student/candidate records and real-time election statistics.
+- **Secure Authentication:** Dual-step login using registered email and a unique voting ID.
+- **Smart Validation:** Prevents double-voting, empty ballots, or exceeding the allowed candidate selection.
+- **Live Election Control:** Global toggle to instantly open or close the voting window.
+- **Instant Results:** Automated vote tallying and immediate data visualization for the election committee.
+- **Responsive UI:** A mobile-friendly design with clear instructional guides for a smooth user experience.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
